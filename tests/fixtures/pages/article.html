@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quantization-aware training in PyTorch 2.5</title>
+<meta property="og:title" content="Quantization-aware training in PyTorch 2.5">
+<meta property="og:site_name" content="Example Blog">
+</head>
+<body>
+<nav class="site-nav">
+<a href="/">Home</a>
+<a href="/blog">Blog</a>
+</nav>
+<header class="cookie-banner">We use cookies. Accept to continue.</header>
+<main>
+<article>
+<h1>Quantization-aware training in PyTorch 2.5</h1>
+<p>By Jane Author, March 2026</p>
+<p>
+Quantization-aware training (QAT) simulates int8 inference during training so the model
+can adjust to the lower-precision regime. PyTorch 2.5 ships an improved <code>torch.ao.quantization</code>
+workflow that fuses observer placement with module preparation.
+</p>
+<h2>Workflow</h2>
+<ol>
+<li>Define the model in fp32.</li>
+<li>Call <code>prepare_qat</code> on the module.</li>
+<li>Train as usual; observers track activation statistics.</li>
+<li>Convert with <code>convert</code> when training ends.</li>
+</ol>
+<p>This reduces inference latency by roughly 2x on supported hardware.</p>
+<pre><code class="language-python">
+import torch
+import torch.ao.quantization as q
+model = MyModel()
+q.prepare_qat(model, inplace=True)
+</code></pre>
+</article>
+</main>
+<aside class="advert">
+<a href="https://example.com/buy-now">Buy our t-shirts!</a>
+</aside>
+<footer>
+<p>(c) 2026 Example Blog</p>
+</footer>
+<script>console.log("tracking goes here");</script>
+</body>
+</html>

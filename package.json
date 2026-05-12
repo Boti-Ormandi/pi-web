@@ -1,0 +1,64 @@
+{
+	"name": "@boti-ormandi/pi-web",
+	"version": "0.3.0",
+	"description": "web_search and web_fetch tools for the pi coding agent. Runs on your Anthropic Claude subscription, the way Claude Code does, with more freedom.",
+	"keywords": [
+		"pi-package",
+		"pi-extension",
+		"anthropic",
+		"claude",
+		"web-search",
+		"web-fetch"
+	],
+	"author": "Botond Ormandi",
+	"license": "MIT",
+	"type": "module",
+	"main": "./src/index.ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Boti-Ormandi/pi-web.git"
+	},
+	"homepage": "https://github.com/Boti-Ormandi/pi-web#readme",
+	"bugs": {
+		"url": "https://github.com/Boti-Ormandi/pi-web/issues"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	},
+	"files": [
+		"src",
+		"README.md",
+		"CHANGELOG.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"test": "vitest --run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@mozilla/readability": "^0.6.0",
+		"iconv-lite": "^0.6.3",
+		"linkedom": "^0.18.5",
+		"pdfjs-dist": "^4.10.38",
+		"turndown": "^7.2.0",
+		"turndown-plugin-gfm": "^1.0.2"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*",
+		"typebox": "*"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.0",
+		"@types/turndown": "^5.0.5",
+		"typescript": "^5.6.0",
+		"vitest": "^2.1.0"
+	}
+}
