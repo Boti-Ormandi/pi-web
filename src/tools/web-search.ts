@@ -20,8 +20,9 @@ export const webSearchSchema = Type.Object({
 	max_results: Type.Optional(
 		Type.Integer({
 			minimum: 1,
-			maximum: 20,
-			description: "Number of results to request (1-20). Default 10.",
+			maximum: 10,
+			description:
+				"Number of results to return (1-10). Default 10. Anthropic's server-side web_search returns at most 10 results per call; higher values are not supported.",
 		}),
 	),
 	allowed_domains: Type.Optional(
@@ -250,7 +251,7 @@ export function createWebSearchTool(opts: WebSearchToolOptions): ToolDefinition<
 
 			const maxResults = Math.max(
 				1,
-				Math.min(20, params.max_results ?? config.search.default_max_results),
+				Math.min(10, params.max_results ?? config.search.default_max_results),
 			);
 			const allowed = uniq([...(params.allowed_domains ?? []), ...config.search.global_allowed_domains]);
 			const blocked = uniq([...(params.blocked_domains ?? []), ...config.search.global_blocked_domains]);

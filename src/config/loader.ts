@@ -99,7 +99,7 @@ function validatePartial(value: unknown): PartialConfig {
 		if (isTierName(search.tier)) s.tier = search.tier;
 		if (typeof search.include_synthesis === "boolean") s.include_synthesis = search.include_synthesis;
 		if (typeof search.default_max_results === "number") {
-			s.default_max_results = Math.max(1, Math.min(20, Math.trunc(search.default_max_results)));
+			s.default_max_results = Math.max(1, Math.min(10, Math.trunc(search.default_max_results)));
 		}
 		if (Array.isArray(search.global_allowed_domains)) {
 			s.global_allowed_domains = search.global_allowed_domains.filter(

@@ -120,7 +120,7 @@ describe("config loader", () => {
 		expect(errSource).toBeDefined();
 	});
 
-	it("clamps default_max_results into 1..20", () => {
+	it("clamps default_max_results into 1..10", () => {
 		const projectPath = join(workDir, "project.json");
 		writeFileSync(projectPath, JSON.stringify({ search: { default_max_results: 999 } }));
 		const r = loadConfig({
@@ -129,7 +129,7 @@ describe("config loader", () => {
 			globalConfigPath: join(workDir, "missing.json"),
 			projectConfigPath: projectPath,
 		});
-		expect(r.config.search.default_max_results).toBe(20);
+		expect(r.config.search.default_max_results).toBe(10);
 	});
 
 	it("CLI --web-no-cache wins over env and config", () => {

@@ -63,7 +63,7 @@ URL-provenance.
 | Parameter | Type | Default | Notes |
 |---|---|---|---|
 | `query` | string | — | Required. |
-| `max_results` | integer 1-20 | 10 | Sliced from Anthropic's fixed 10-result return. |
+| `max_results` | integer 1-10 | 10 | Anthropic's server-side `web_search` returns at most 10 results per call. pi-web slices to this cap. |
 | `allowed_domains` | string[] | — | Appended to the orchestrator prompt. |
 | `blocked_domains` | string[] | — | Appended to the orchestrator prompt. |
 | `tier` | `fast` \| `balanced` \| `strong` | `fast` | Wins over config, loses to `orchestrator_model`. |

@@ -2,6 +2,21 @@
 
 All notable changes to pi-web are recorded here.
 
+## [0.3.2]
+
+- `web_search.max_results` schema bound lowered from 1-20 to 1-10.
+  Anthropic's server-side `web_search_20250305` tool exposes no
+  `max_results` parameter and returns at most 10 results per
+  invocation (confirmed empirically; the API docs do not state the
+  number but consistently cap there). The prior 1-20 bound was a
+  lie: pi-web told the orchestrator "return up to N", Anthropic
+  returned 10, pi-web sliced `[0, N]` on a 10-element array and the
+  caller silently got 10. Schema, runtime clamp
+  (`web-search.ts`), and config-loader clamp
+  (`default_max_results` in `loader.ts`) all now top out at 10.
+  Description rewritten to spell out the cap. Slicing behavior for
+  1-10 is unchanged.
+
 ## [0.3.1]
 
 - Renderer no longer prints the bold `WebSearch ` / `WebFetch ` header
