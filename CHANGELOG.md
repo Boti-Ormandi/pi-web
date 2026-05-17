@@ -2,6 +2,40 @@
 
 All notable changes to pi-web are recorded here.
 
+## [0.3.1]
+
+- Renderer no longer prints the bold `WebSearch ` / `WebFetch ` header
+  twice on settled tool rows. The tool-execution row composes
+  `renderCall` and `renderResult` into the same container; both slots
+  were emitting the tool name, so a settled row showed two stacked
+  bold headers. The result-line head now leads with the outcome
+  (`5 results` / `summary` / `raw` / `summary [server·cite]`) and lets
+  the call slot above carry the tool name. Matches the precedent set
+  by built-in `bash` (call: `$ <cmd>`, result: just output and timing).
+- Unified head structure between `web_search` and `web_fetch` settled
+  rows: `<outcome>  [middle]  <model> (cached) (elapsed) [cost]`,
+  built by joining a filtered segments array. `(cached)` and
+  `(elapsed)` sit in the same column in both tools.
+- `web_fetch` raw mode no longer renders a misleading `raw` token in
+  the model slot; the mode is already shown to the left as the
+  outcome.
+- `web_fetch` call line uses a parts-array pattern so an empty flag
+  list no longer leaves trailing whitespace.
+- `web_fetch` expanded preview shows the page body, not the
+  `Fetched: ...` / `Title: ...` / `Summarized via ...` lines that
+  already appear above as structured fields. New `extractFetchBody`
+  helper splits on the `\n\n---\n\n` divider (raw and server modes) or
+  the first blank line (summary mode); server-mode pre-header
+  skip-note is correctly skipped along with the structured header.
+- `web_fetch` expanded view no longer prints a redundant `Cache: hit`
+  line. The collapsed head already shows `(cached)`.
+- `web_search` in-band `web_search_tool_result_error` codes
+  (`too_many_requests`, `invalid_input`, `max_uses_exceeded`,
+  `query_too_long`, `unavailable`) are mapped to friendlier labels.
+  Unknown codes fall through to the raw code.
+- `web_search` expanded view now shows the `Usage: in=N out=M` line,
+  matching what `web_fetch` already displayed.
+
 ## [0.3.0]
 
 - Server-side `web_fetch` skip detection. The orchestrator may answer

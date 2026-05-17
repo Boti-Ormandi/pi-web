@@ -38,7 +38,18 @@ function fmtCall(theme: Theme, args: WebFetchInput): string {
 	if (args.raw_max_bytes && backend !== "server") flags.push(`raw_max_bytes=${args.raw_max_bytes}`);
 	if (args.max_content_tokens) flags.push(`max_content_tokens=${args.max_content_tokens}`);
 	if (args.prompt) flags.push(`prompt="${truncate(args.prompt, 40)}"`);
-	return title + url + "  " + theme.fg("dim", flags.join(" "));
+	const parts: string[] = [title + url];
+	if (flags.length > 0) parts.push(theme.fg("dim", flags.join(" ")));
+	return parts.join(" ");
+}
+
+function extractFetchBody(text: string): string {
+	const divider = "\n\n---\n\n";
+	const dividerIdx = text.indexOf(divider);
+	if (dividerIdx !== -1) return text.slice(dividerIdx + divider.length);
+	const blankIdx = text.indexOf("\n\n");
+	if (blankIdx !== -1) return text.slice(blankIdx + 2);
+	return text;
 }
 
 function truncate(s: string, max: number): string {
@@ -73,33 +84,31 @@ export function renderFetchResult(
 	const debug = getDebug();
 	const showCost = cfg ? shouldShowCost(cfg, debug) : false;
 
-	const cached = details.cached ? theme.fg("dim", " (cached)") : "";
+	const cached = details.cached ? theme.fg("dim", "(cached)") : "";
 	const elapsed = theme.fg("dim", `(${formatMs(details.elapsedMs)})`);
 	const sizeIn = formatBytes(details.bytesIn);
 	const sizeOut = formatBytes(details.bytesOut);
 	const arrow = theme.fg("dim", "->");
-	const model = details.model ? theme.fg("muted", shortModelLabel(details.model)) : theme.fg("dim", "raw");
-	const cost = showCost && details.cost ? theme.fg("dim", ` ${formatCost(details.cost)}`) : "";
-	const thinking = details.thinkingFired ? theme.fg("dim", " thinking-on") : "";
+	const cost = showCost && details.cost ? theme.fg("dim", formatCost(details.cost)) : "";
 	const backendTag =
 		details.backend === "server"
 			? details.serverFetchInvoked === false
 				? theme.fg("warning", " [server·skipped]")
 				: theme.fg("dim", details.citationLinked ? " [server·cite]" : " [server]")
 			: "";
-	const head =
-		theme.fg("toolTitle", theme.bold("WebFetch ")) +
-		theme.fg("success", `${details.mode}`) +
-		backendTag +
-		" " +
-		theme.fg("muted", `${sizeIn} ${arrow} ${sizeOut}`) +
-		"  " +
-		model +
-		thinking +
-		" " +
-		elapsed +
-		cost +
-		cached;
+	const modelChunk = details.model
+		? [
+				theme.fg("muted", shortModelLabel(details.model)),
+				details.thinkingFired ? theme.fg("dim", "thinking-on") : "",
+			]
+				.filter((s) => s.length > 0)
+				.join(" ")
+		: "";
+
+	const outcome = theme.fg("success", details.mode) + backendTag;
+	const sizes = theme.fg("muted", `${sizeIn} ${arrow} ${sizeOut}`);
+	const tail = [modelChunk, cached, elapsed, cost].filter((s) => s.length > 0).join(" ");
+	const head = [outcome, sizes, tail].filter((s) => s.length > 0).join("  ");
 
 	if (!options.expanded) return new Text(head, 0, 0);
 
@@ -155,13 +164,15 @@ export function renderFetchResult(
 			lines.push(`  ${theme.fg("dim", "Server error:")} ${theme.fg("warning", details.serverFetchErrorCode)}`);
 		}
 	}
-	if (details.cached) lines.push(`  ${theme.fg("dim", "Cache:")} ${theme.fg("success", "hit")}`);
 	const text = result.content?.[0];
 	if (text && typeof text.text === "string") {
-		const preview = text.text.split("\n").slice(0, 12).join("\n");
-		lines.push("");
-		lines.push(theme.fg("muted", "--- result ---"));
-		for (const ln of preview.split("\n")) lines.push("  " + theme.fg("dim", ln));
+		const body = extractFetchBody(text.text).replace(/^\n+/, "");
+		if (body.length > 0) {
+			const preview = body.split("\n").slice(0, 12).join("\n");
+			lines.push("");
+			lines.push(theme.fg("muted", "--- result ---"));
+			for (const ln of preview.split("\n")) lines.push("  " + theme.fg("dim", ln));
+		}
 	}
 	return new Text(lines.join("\n"), 0, 0);
 }

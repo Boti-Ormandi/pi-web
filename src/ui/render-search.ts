@@ -24,6 +24,14 @@ type Theme = {
 	bold(text: string): string;
 };
 
+const WEB_SEARCH_ERROR_LABELS: Record<string, string> = {
+	too_many_requests: "rate-limited",
+	invalid_input: "invalid query",
+	max_uses_exceeded: "maximum search uses exceeded",
+	query_too_long: "query too long",
+	unavailable: "web_search unavailable",
+};
+
 function fmtTitle(theme: Theme, args: WebSearchInput): string {
 	const title = theme.fg("toolTitle", theme.bold("WebSearch "));
 	const queryPart = args.query ? theme.fg("muted", `"${truncate(args.query, 80)}"`) : "";
@@ -64,20 +72,22 @@ export function renderSearchResult(
 		return new Text(text && typeof text.text === "string" ? text.text : "", 0, 0);
 	}
 	if (details.errorCode) {
-		return new Text(theme.fg("error", `Error: ${details.errorCode}`), 0, 0);
+		const label = WEB_SEARCH_ERROR_LABELS[details.errorCode];
+		const msg = label ? `Error: ${label} (${details.errorCode})` : `Error: ${details.errorCode}`;
+		return new Text(theme.fg("error", msg), 0, 0);
 	}
 	const cfg = getConfig();
 	const debug = getDebug();
 	const showCost = cfg ? shouldShowCost(cfg, debug) : false;
 
-	const tag = details.cached ? theme.fg("dim", " (cached)") : "";
 	const model = theme.fg("muted", shortModelLabel(details.model));
+	const cached = details.cached ? theme.fg("dim", "(cached)") : "";
 	const elapsed = theme.fg("dim", `(${formatMs(details.elapsedMs)})`);
-	const cost = showCost && details.cost ? theme.fg("dim", ` ${formatCost(details.cost)}`) : "";
+	const cost = showCost && details.cost ? theme.fg("dim", formatCost(details.cost)) : "";
 
-	let head = theme.fg("toolTitle", theme.bold("WebSearch "));
-	head += theme.fg("success", `${details.resultCount} results`);
-	head += "  " + model + tag + " " + elapsed + cost;
+	const outcome = theme.fg("success", `${details.resultCount} results`);
+	const tail = [model, cached, elapsed, cost].filter((s) => s.length > 0).join(" ");
+	const head = [outcome, tail].filter((s) => s.length > 0).join("  ");
 
 	if (!options.expanded) {
 		return new Text(head, 0, 0);
@@ -90,6 +100,12 @@ export function renderSearchResult(
 		lines.push(`      ${theme.fg("muted", r.url)}`);
 		if (r.pageAge) lines.push(`      ${theme.fg("dim", `page age: ${r.pageAge}`)}`);
 	});
+	if (details.usage) {
+		lines.push("");
+		lines.push(
+			`  ${theme.fg("dim", "Usage:")} ${theme.fg("muted", `in=${details.usage.input_tokens ?? 0} out=${details.usage.output_tokens ?? 0}`)}`,
+		);
+	}
 	if (details.synthesis) {
 		lines.push("");
 		lines.push(theme.fg("muted", "Synthesis:"));

@@ -1,6 +1,6 @@
 {
 	"name": "@boti-ormandi/pi-web",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "web_search and web_fetch tools for the pi coding agent. Runs on your Anthropic Claude subscription, the way Claude Code does, with more freedom.",
 	"keywords": [
 		"pi-package",
